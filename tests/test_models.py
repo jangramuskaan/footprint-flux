@@ -1,5 +1,8 @@
 from datetime import datetime, timezone
 
+from sqlalchemy.orm import Session
+
+from app.database import engine
 from app.models import (
     Person,
     Source,
@@ -7,32 +10,38 @@ from app.models import (
     Snapshot,
     Change,
     ChangeType,
+    snapshot_observations,
 )
 
 
 def test_person_model():
     person = Person(
         display_name="Test User",
-        created_at="2026-09-09T13:00:00"
+        created_at=datetime.now(timezone.utc),
     )
 
-    assert person.display_name == "Test User"
-    assert person.id is not None
+    with Session(engine) as session:
+        session.add(person)
+        session.flush()
+
+        assert person.display_name == "Test User"
+        assert person.id is not None
 
 
 def test_source_model():
     source = Source(
         platform="GitHub",
-        url="https://github.com/example"
+        url="https://github.com/example",
     )
 
     assert source.platform == "GitHub"
+    assert source.url == "https://github.com/example"
 
 
 def test_observation_model():
     source = Source(
         platform="GitHub",
-        url="https://github.com/example"
+        url="https://github.com/example",
     )
 
     observation = Observation(
@@ -50,7 +59,7 @@ def test_observation_model():
 def test_snapshot_model():
     person = Person(
         display_name="Test User",
-        created_at="2026-09-09T13:00:00"
+        created_at=datetime.now(timezone.utc),
     )
 
     snapshot = Snapshot(
@@ -59,13 +68,14 @@ def test_snapshot_model():
     )
 
     assert snapshot.person_id == person.id
-    assert snapshot.observation_ids == []
+    assert snapshot.captured_at is not None
+    assert snapshot_observations.name == "snapshot_observations"
 
 
 def test_change_model():
     person = Person(
         display_name="Test User",
-        created_at="2026-09-09T13:00:00"
+        created_at=datetime.now(timezone.utc),
     )
 
     snapshot_before = Snapshot(
@@ -90,3 +100,4 @@ def test_change_model():
     assert change.change_type == ChangeType.MODIFIED
     assert change.old_value == "exampleuser"
     assert change.new_value == "example_user"
+    assert change.detected_at is not None
