@@ -1,38 +1,65 @@
-from app.models.graph import Relationship
-from app.services.graph_service import create_node, create_relationship
+from uuid import uuid4
+
+from app.models.graph.node import Node
+from app.models.graph.edge import Edge
+from app.services.graph_service import build_graph
 
 
-def test_create_node():
-    node = create_node(
+def test_build_graph():
+    node1 = Node(
+        id=uuid4(),
         node_type="github",
-        label="GitHub Profile",
+        label="Muskaan",
         value="jangramuskaan",
     )
 
-    assert node.node_type == "github"
-    assert node.label == "GitHub Profile"
-    assert node.value == "jangramuskaan"
+    node2 = Node(
+        id=uuid4(),
+        node_type="profile",
+        label="Profile",
+        value="jangramuskaan",
+    )
+
+    edge = Edge(
+        source_node_id=node1.id,
+        target_node_id=node2.id,
+        relationship="same_username",
+    )
+
+    graph = build_graph([node1, node2], [edge])
+
+    assert graph.number_of_nodes() == 2
+    assert graph.number_of_edges() == 1
 
 
-def test_create_relationship():
-    source = create_node(
+def test_graph_contains_relationship():
+    node1 = Node(
+        id=uuid4(),
         node_type="github",
-        label="GitHub Profile",
+        label="GitHub",
         value="jangramuskaan",
     )
 
-    target = create_node(
-        node_type="username",
-        label="Username",
+    node2 = Node(
+        id=uuid4(),
+        node_type="profile",
+        label="Other Profile",
         value="jangramuskaan",
     )
 
-    edge = create_relationship(
-        source,
-        target,
-        Relationship.SAME_USERNAME,
+    edge = Edge(
+        source_node_id=node1.id,
+        target_node_id=node2.id,
+        relationship="same_username",
     )
 
-    assert edge.source_node_id == source.id
-    assert edge.target_node_id == target.id
-    assert edge.relationship == Relationship.SAME_USERNAME.value
+    graph = build_graph([node1, node2], [edge])
+
+    assert graph.has_edge(
+        str(node1.id),
+        str(node2.id),
+    )
+
+    assert graph[
+        str(node1.id)
+    ][str(node2.id)]["relationship"] == "same_username"
