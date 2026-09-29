@@ -1,5 +1,5 @@
 from app.models.graph import Node, Relationship
-from app.services.graph_service import create_node, create_relationship
+from app.models.graph.edge import Edge
 
 
 def build_relationship(
@@ -18,20 +18,20 @@ def build_relationship(
     if relationship is None:
         return None
 
-    source = create_node(
+    source = Node(
         node_type="profile",
         label="Source Profile",
         value=source_value,
     )
 
-    target = create_node(
+    target = Node(
         node_type=observation_type,
         label=observation_type.capitalize(),
         value=target_value,
     )
 
-    return create_relationship(
-        source,
-        target,
-        relationship,
+    return Edge(
+        source_node_id=source.id,
+        target_node_id=target.id,
+        relationship=relationship.value,
     )
