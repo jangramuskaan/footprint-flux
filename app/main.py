@@ -6,6 +6,7 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 from app.database import engine
 from app.api.graph import graph_for_session
+from app.api.exposure import exposure_for_session
 
 import networkx as nx
 
@@ -89,3 +90,12 @@ def get_graph():
             graph,
             edges="links",
         )
+
+@app.get("/api/exposure")
+def get_exposure():
+    with Session(engine) as session:
+        score = exposure_for_session(session)
+
+        return {
+            "score": score
+        }
