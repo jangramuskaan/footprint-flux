@@ -1,11 +1,13 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+from sqlalchemy import text
 from sqlalchemy.orm import Session
-import networkx as nx
-
 from app.database import engine
 from app.api.graph import graph_for_session
-from app.repositories import graph
 
+import networkx as nx
 
 app = FastAPI(
     title="Footprint Flux API",
@@ -13,17 +15,77 @@ app = FastAPI(
 )
 
 
-@app.get("/")
-def root():
+# Frontend
+app.mount(
+    "/static",
+    StaticFiles(directory="app/static"),
+    name="static",
+)
+
+templates = Jinja2Templates(
+    directory="app/templates",
+)
+
+
+@app.get("/", response_class=HTMLResponse)
+def dashboard(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="index.html",
+        context={},
+    )
+
+
+@app.get("/api/health")
+def health():
     return {
         "name": "Footprint Flux",
         "status": "running",
     }
 
 
+@app.get("/api/stats")
+def get_stats():
+    with Session(engine) as session:
+        observations = session.execute(
+            text("SELECT COUNT(*) FROM observations")
+        ).scalar_one()
+
+        sources = session.execute(
+            text("SELECT COUNT(*) FROM sources")
+        ).scalar_one()
+
+        changes = session.execute(
+            text("SELECT COUNT(*) FROM changes")
+        ).scalar_one()
+
+        snapshots = session.execute(
+            text("SELECT COUNT(*) FROM snapshots")
+        ).scalar_one()
+
+        graph_nodes = session.execute(
+            text("SELECT COUNT(*) FROM graph_nodes")
+        ).scalar_one()
+
+        graph_edges = session.execute(
+            text("SELECT COUNT(*) FROM graph_edges")
+        ).scalar_one()
+
+    return {
+        "observations": observations,
+        "sources": sources,
+        "changes": changes,
+        "snapshots": snapshots,
+        "graph_nodes": graph_nodes,
+        "graph_edges": graph_edges,
+    }
+
 @app.get("/graph")
 def get_graph():
     with Session(engine) as session:
         graph = graph_for_session(session)
 
-    return nx.node_link_data(graph, edges="links")
+        return nx.node_link_data(
+            graph,
+            edges="links",
+        )

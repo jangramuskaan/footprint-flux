@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Footprint Flux</title>
+
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+    <div class="app">
+
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-icon">F</div>
+
+                <div>
+                    <h1>Footprint Flux</h1>
+                    <span>Digital Footprint Intelligence</span>
+                </div>
+            </div>
+
+            <nav>
+                <a href="#" class="nav-item active">Dashboard</a>
+                <a href="#" class="nav-item">Timeline</a>
+                <a href="#" class="nav-item">Exposure</a>
+                <a href="#" class="nav-item">Relationship Graph</a>
+                <a href="#" class="nav-item">Sources</a>
+            </nav>
+
+            <div class="sidebar-bottom">
+                <span>Footprint Flux</span>
+                <small>v1.0.0</small>
+            </div>
+        </aside>
+
+
+        <main class="main">
+
+            <header class="topbar">
+                <div>
+                    <p class="eyebrow">DIGITAL FOOTPRINT</p>
+                    <h2>Dashboard</h2>
+                </div>
+
+                <button class="scan-button">
+                    Run Scan
+                </button>
+            </header>
+
+
+            <section class="hero">
+
+                <div>
+                    <p class="eyebrow">OVERVIEW</p>
+
+                    <h3>
+                        Understand how your public
+                        digital presence evolves.
+                    </h3>
+
+                    <p class="hero-text">
+                        Footprint Flux collects public observations,
+                        tracks changes over time and identifies
+                        potential exposure relationships.
+                    </p>
+                </div>
+
+                <div class="hero-status">
+                    <span class="status-dot"></span>
+                    System operational
+                </div>
+
+            </section>
+
+
+            <section class="stats-grid">
+
+                <div class="stat-card">
+                    <span>Observations</span>
+                    <strong id="observationCount">—</strong>
+                    <small>Collected footprint data</small>
+                </div>
+
+                <div class="stat-card">
+                    <span>Sources</span>
+                    <strong id="sourceCount">—</strong>
+                    <small>Public sources tracked</small>
+                </div>
+
+                <div class="stat-card">
+                    <span>Changes</span>
+                    <strong id="changeCount">—</strong>
+                    <small>Detected over time</small>
+                </div>
+
+                <div class="stat-card">
+                    <span>Exposure Score</span>
+                    <strong id="exposureScore">—</strong>
+                    <small>Current exposure level</small>
+                </div>
+
+            </section>
+
+
+            <section class="content-grid">
+
+                <div class="panel">
+
+                    <div class="panel-header">
+                        <div>
+                            <p class="eyebrow">TIMELINE</p>
+                            <h3>Footprint activity</h3>
+                        </div>
+
+                        <button class="text-button">
+                            View timeline →
+                        </button>
+                    </div>
+
+                    <div class="empty-state">
+                        No timeline data available yet.
+                    </div>
+
+                </div>
+
+
+                <div class="panel">
+
+                    <div class="panel-header">
+                        <div>
+                            <p class="eyebrow">GRAPH</p>
+                            <h3>Relationships</h3>
+                        </div>
+
+                        <button class="text-button">
+                            Explore →
+                        </button>
+                    </div>
+
+                    <div class="graph-preview">
+                        <div class="graph-node center">You</div>
+                        <div class="graph-node node-one">GitHub</div>
+                        <div class="graph-node node-two">Profile</div>
+                        <div class="graph-node node-three">Repository</div>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <section class="panel">
+
+                <div class="panel-header">
+                    <div>
+                        <p class="eyebrow">RECENT ACTIVITY</p>
+                        <h3>Latest footprint changes</h3>
+                    </div>
+                </div>
+
+                <div class="empty-state">
+                    No changes detected yet.
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+    <script src="/static/app.js?v=2"></script>
+
+</body>
+</html>
