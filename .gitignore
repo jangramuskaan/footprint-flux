@@ -32,4 +32,4 @@ htmlcov/
 build/
 dist/
 *.egg-info/
-footprint.db
+footprint.dbtest_footprint.db
