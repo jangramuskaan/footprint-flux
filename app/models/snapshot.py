@@ -2,7 +2,7 @@ from datetime import datetime
 from uuid import UUID, uuid4
 
 from sqlalchemy import DateTime, ForeignKey, Table, Column
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
 
@@ -39,4 +39,9 @@ class Snapshot(Base):
     captured_at: Mapped[datetime] = mapped_column(
         DateTime,
         nullable=False,
+    )
+
+    observations: Mapped[list["Observation"]] = relationship(
+        "Observation",
+        secondary=snapshot_observations,
     )
