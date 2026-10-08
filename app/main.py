@@ -7,6 +7,9 @@ from sqlalchemy.orm import Session
 from app.database import engine
 from app.api.graph import graph_for_session
 from app.api.exposure import exposure_for_session
+from uuid import UUID
+
+from app.services.timeline_stats import get_timeline_stats
 
 import networkx as nx
 
@@ -99,3 +102,14 @@ def get_exposure():
         return {
             "score": score
         }
+
+
+@app.get("/timeline/{person_id}/stats")
+def get_timeline_stats_api(
+    person_id: UUID,
+):
+    with Session(engine) as session:
+        return get_timeline_stats(
+            session=session,
+            person_id=person_id,
+        )
