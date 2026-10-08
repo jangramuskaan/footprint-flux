@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 
 from sqlalchemy.orm import Session
 
+from app.api import timeline
 from app.database import engine
 from app.models import Person, Snapshot
 from app.api.timeline import timeline_for_person
@@ -36,5 +37,7 @@ def test_timeline_for_person():
         )
 
         assert len(timeline) == 2
-        assert timeline[0].id == snapshot_1.id
-        assert timeline[1].id == snapshot_2.id
+        assert timeline[0]["type"] == "snapshot"
+        assert timeline[1]["type"] == "snapshot" 
+        assert timeline[0]["snapshot_id"] == str(snapshot_1.id)
+        assert timeline[1]["snapshot_id"] == str(snapshot_2.id)
