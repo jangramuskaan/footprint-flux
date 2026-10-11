@@ -11,7 +11,7 @@ from uuid import UUID
 from app.services.exposure_score import calculate_exposure_score
 from sqlalchemy import select
 from app.models import Person
-
+from app.api.privacy_report import privacy_report_for_person
 
 from app.services.timeline_stats import get_timeline_stats
 
@@ -135,6 +135,15 @@ def get_timeline_stats_api(
 def get_exposure_score(person_id: UUID):
     with Session(engine) as session:
         return exposure_for_person(
+            session=session,
+            person_id=person_id,
+        )
+
+
+@app.get("/privacy-report/{person_id}")
+def get_privacy_report(person_id: UUID):
+    with Session(engine) as session:
+        return privacy_report_for_person(
             session=session,
             person_id=person_id,
         )
