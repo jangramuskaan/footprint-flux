@@ -1,15 +1,16 @@
-from sqlalchemy import select
+
+from uuid import UUID
+
 from sqlalchemy.orm import Session
 
-from app.analysis.exposure import calculate_exposure_score
-from app.models import Observation
+from app.services.exposure_score import calculate_exposure_score
 
 
-def exposure_for_session(session: Session) -> int:
-    statement = select(Observation)
-
-    observations = list(
-        session.execute(statement).scalars().all()
+def exposure_for_person(
+    session: Session,
+    person_id: UUID,
+) -> dict:
+    return calculate_exposure_score(
+        session=session,
+        person_id=person_id,
     )
-
-    return calculate_exposure_score(observations)

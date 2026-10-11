@@ -6,8 +6,12 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 from app.database import engine
 from app.api.graph import graph_for_session
-from app.api.exposure import exposure_for_session
+from app.api.exposure import exposure_for_person
 from uuid import UUID
+from app.services.exposure_score import calculate_exposure_score
+from sqlalchemy import select
+from app.models import Person
+
 
 from app.services.timeline_stats import get_timeline_stats
 
@@ -94,14 +98,26 @@ def get_graph():
             edges="links",
         )
 
+
+
 @app.get("/api/exposure")
 def get_exposure():
     with Session(engine) as session:
-        score = exposure_for_session(session)
+        people = session.execute(select(Person)).scalars().all()
 
-        return {
-            "score": score
-        }
+        if not people:
+            return {
+                "score": 0,
+                "risk_level": "low",
+                "factors": [],
+            }
+
+        return calculate_exposure_score(
+            session=session,
+            person_id=people[0].id,
+        )
+
+
 
 
 @app.get("/timeline/{person_id}/stats")
@@ -110,6 +126,15 @@ def get_timeline_stats_api(
 ):
     with Session(engine) as session:
         return get_timeline_stats(
+            session=session,
+            person_id=person_id,
+        )
+
+
+@app.get("/exposure/{person_id}")
+def get_exposure_score(person_id: UUID):
+    with Session(engine) as session:
+        return exposure_for_person(
             session=session,
             person_id=person_id,
         )
