@@ -12,6 +12,7 @@ from app.services.exposure_score import calculate_exposure_score
 from sqlalchemy import select
 from app.models import Person
 from app.api.privacy_report import privacy_report_for_person
+from app.api.recommendations import recommendations_for_person
 
 from app.services.timeline_stats import get_timeline_stats
 
@@ -147,3 +148,15 @@ def get_privacy_report(person_id: UUID):
             session=session,
             person_id=person_id,
         )
+
+
+@app.get("/recommendations/{person_id}")
+def get_recommendations(person_id: UUID):
+    with Session(engine) as session:
+        return {
+            "person_id": str(person_id),
+            "recommendations": recommendations_for_person(
+                session=session,
+                person_id=person_id,
+            ),
+        }
