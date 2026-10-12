@@ -6,10 +6,10 @@ from sqlalchemy.orm import Session
 from app.models import Observation, Snapshot
 from app.models.snapshot import snapshot_observations
 
-
 def calculate_exposure_score(
     session: Session,
     person_id: UUID,
+    snapshot_id: UUID | None = None,
 ) -> dict:
     statement = (
         select(Observation)
@@ -24,6 +24,9 @@ def calculate_exposure_score(
         .where(Snapshot.person_id == person_id)
     )
 
+    if snapshot_id is not None:
+        statement = statement.where(Snapshot.id == snapshot_id)
+
     observations = (
         session.execute(statement)
         .scalars()
@@ -35,10 +38,7 @@ def calculate_exposure_score(
     seen_keys = set()
 
     for observation in observations:
-        key = (
-            observation.category,
-            observation.key,
-        )
+        key = (observation.category, observation.key)
 
         if key in seen_keys:
             continue
@@ -65,7 +65,6 @@ def calculate_exposure_score(
             if repo_count > 0:
                 points = min(repo_count * 2, 20)
                 score += points
-
                 factors.append({
                     "factor": "Public repositories",
                     "points": points,
@@ -79,10 +78,7 @@ def calculate_exposure_score(
                     "points": 5,
                 })
 
-        elif observation.key in {
-            "followers",
-            "following",
-        }:
+        elif observation.key in {"followers", "following"}:
             score += 3
             factors.append({
                 "factor": f"Public {observation.key} count",
