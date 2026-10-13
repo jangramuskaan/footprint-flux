@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -13,6 +13,7 @@ from sqlalchemy import select
 from app.models import Person
 from app.api.privacy_report import privacy_report_for_person
 from app.api.recommendations import recommendations_for_person
+from app.api.snapshot_diff import compare_snapshots
 
 from app.services.timeline_stats import get_timeline_stats
 
@@ -153,3 +154,31 @@ def get_privacy_report(person_id: UUID):
 @app.get("/recommendations/{person_id}")
 def get_recommendations(person_id: UUID):
     return recommendations_for_person(person_id)
+
+
+
+@app.get("/snapshots/diff")
+def get_snapshot_diff(
+    snapshot_before_id: UUID,
+    snapshot_after_id: UUID,
+):
+    result = compare_snapshots(
+        snapshot_before_id=snapshot_before_id,
+        snapshot_after_id=snapshot_after_id,
+    )
+
+    if "error" in result:
+        error_message = result["error"]
+
+        if "not found" in error_message.lower():
+            raise HTTPException(
+                status_code=404,
+                detail=error_message,
+            )
+
+        raise HTTPException(
+            status_code=400,
+            detail=error_message,
+        )
+
+    return result
