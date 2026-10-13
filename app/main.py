@@ -152,11 +152,4 @@ def get_privacy_report(person_id: UUID):
 
 @app.get("/recommendations/{person_id}")
 def get_recommendations(person_id: UUID):
-    with Session(engine) as session:
-        return {
-            "person_id": str(person_id),
-            "recommendations": recommendations_for_person(
-                session=session,
-                person_id=person_id,
-            ),
-        }
+    return recommendations_for_person(person_id)
