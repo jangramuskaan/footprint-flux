@@ -1,58 +1,82 @@
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
-from sqlalchemy.orm import Session
-
-from app.database import engine
-from app.models import Person, Source, Observation
-from app.services.snapshot_service import create_snapshot, get_snapshot
+from app.models import Person, Source, Observation, Snapshot
+from app.api.snapshot_diff import compare_snapshots
 
 
-def test_snapshot_service():
-    person = Person(
-        display_name="Snapshot Service User",
-        created_at=datetime.now(timezone.utc),
-    )
+def test_snapshot_diff_detects_added_removed_and_modified(
+    session,
+):
+    person = Person(display_name="Snapshot Diff Test")
+    session.add(person)
+    session.flush()
 
     source = Source(
-        platform="GitHub",
+        platform="github",
         url="https://github.com/example",
     )
+    session.add(source)
+    session.flush()
 
-    with Session(engine) as session:
-        session.add(person)
-        session.add(source)
-        session.flush()
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
 
-        observation = Observation(
-            source_id=source.id,
-            category="profile",
-            key="username",
-            value="snapshot_service_user",
-            observed_at=datetime.now(timezone.utc),
-        )
+    before = Snapshot(
+        person_id=person.id,
+        captured_at=now,
+    )
+    after = Snapshot(
+        person_id=person.id,
+        captured_at=now + timedelta(minutes=1),
+    )
 
-        session.add(observation)
-        session.flush()
+    old_username = Observation(
+        source_id=source.id,
+        category="profile",
+        key="username",
+        value="old_user",
+        observed_at=now,
+    )
+    removed_bio = Observation(
+        source_id=source.id,
+        category="profile",
+        key="bio",
+        value="Old bio",
+        observed_at=now,
+    )
+    new_repo = Observation(
+        source_id=source.id,
+        category="repository",
+        key="repo",
+        value="project-one",
+        observed_at=now + timedelta(minutes=1),
+    )
+    new_username = Observation(
+        source_id=source.id,
+        category="profile",
+        key="username",
+        value="new_user",
+        observed_at=now + timedelta(minutes=1),
+    )
 
-        snapshot = create_snapshot(
-            session=session,
-            person_id=person.id,
-            observations=[observation],
-        )
+    before.observations = [old_username, removed_bio]
+    after.observations = [new_username, new_repo]
 
-        assert snapshot.id is not None
-        assert snapshot.person_id == person.id
-        assert snapshot.captured_at is not None
-        assert len(snapshot.observations) == 1
-        assert snapshot.observations[0].id == observation.id
+    session.add_all([before, after])
+    session.commit()
 
-        retrieved = get_snapshot(
-            session=session,
-            snapshot_id=snapshot.id,
-        )
+    result = compare_snapshots(
+        snapshot_before_id=before.id,
+        snapshot_after_id=after.id,
+    )
 
-        assert retrieved is not None
-        assert retrieved.id == snapshot.id
-        assert retrieved.person_id == person.id
-        assert len(retrieved.observations) == 1
-        assert retrieved.observations[0].value == "snapshot_service_user"
+    assert "error" not in result
+    assert result["total_changes"] == 3
+
+    change_types = {
+        (change["change_type"], change["key"])
+        for change in result["changes"]
+    }
+
+    assert ("added", "repo") in change_types
+    assert ("removed", "bio") in change_types
+    assert ("modified", "username") in change_types
