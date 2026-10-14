@@ -68,9 +68,28 @@ def compare_snapshots(
                     "new_value": new_obs.value,
                 })
 
+        
+        added = sum(
+            change["change_type"] == "added"
+            for change in changes
+        )
+        removed = sum(
+            change["change_type"] == "removed"
+            for change in changes
+        )
+        modified = sum(
+            change["change_type"] == "modified"
+            for change in changes
+        )
+
         return {
             "snapshot_before_id": str(snapshot_before_id),
             "snapshot_after_id": str(snapshot_after_id),
+            "summary": {
+                "added": added,
+                "removed": removed,
+                "modified": modified,
+            },
             "changes": changes,
             "total_changes": len(changes),
         }

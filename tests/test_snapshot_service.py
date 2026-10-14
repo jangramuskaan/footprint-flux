@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+from unittest import result
 
 from app.models import Person, Source, Observation, Snapshot
 from app.api.snapshot_diff import compare_snapshots
@@ -80,3 +81,6 @@ def test_snapshot_diff_detects_added_removed_and_modified(
     assert ("added", "repo") in change_types
     assert ("removed", "bio") in change_types
     assert ("modified", "username") in change_types
+    assert result["summary"]["added"] == 1
+    assert result["summary"]["removed"] == 1
+    assert result["summary"]["modified"] == 1
