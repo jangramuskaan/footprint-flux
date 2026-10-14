@@ -35,3 +35,9 @@ def test_snapshot_diff_returns_not_found_for_missing_snapshots():
     )
 
     assert response.status_code == 404
+
+ 
+def test_snapshot_diff_missing_ids_returns_422():
+    response = client.get("/snapshots/diff")
+
+    assert response.status_code == 422
