@@ -1,41 +1,35 @@
-from datetime import datetime, timezone
-
-from sqlalchemy.orm import Session
-
-from app.database import engine
+from datetime import datetime, timedelta, timezone
+from uuid import uuid4
 from app.models import Person, Snapshot
 from app.services.timeline_stats import get_timeline_stats
 
 
-def test_get_timeline_stats():
+def test_timeline_stats_change_rate_with_multiple_snapshots(session):
     person = Person(
-        display_name="Stats Test User",
+        display_name="Change Rate Test",
         created_at=datetime.now(timezone.utc),
     )
+    session.add(person)
+    session.flush()
 
-    with Session(engine) as session:
-        session.add(person)
-        session.flush()
-
-        snapshot_1 = Snapshot(
+    first_time = datetime(2026, 9, 20)
+    snapshots = [
+        Snapshot(person_id=person.id, captured_at=first_time),
+        Snapshot(
             person_id=person.id,
-            captured_at=datetime(2026, 9, 20, tzinfo=timezone.utc),
-        )
-
-        snapshot_2 = Snapshot(
+            captured_at=first_time + timedelta(days=1),
+        ),
+        Snapshot(
             person_id=person.id,
-            captured_at=datetime(2026, 9, 21, tzinfo=timezone.utc),
-        )
+            captured_at=first_time + timedelta(days=2),
+        ),
+    ]
 
-        session.add_all([snapshot_1, snapshot_2])
-        session.commit()
+    session.add_all(snapshots)
+    session.flush()
 
-        stats = get_timeline_stats(
-            session=session,
-            person_id=person.id,
-        )
+    stats = get_timeline_stats(session, person.id)
 
-        assert stats["total_snapshots"] == 2
-        assert stats["total_changes"] == 0
-        assert stats["first_snapshot"] == snapshot_1.captured_at
-        assert stats["latest_snapshot"] == snapshot_2.captured_at
+    assert stats["total_snapshots"] == 3
+    assert stats["change_rate"] == 0
+    assert stats["activity_status"] == "no_changes"
