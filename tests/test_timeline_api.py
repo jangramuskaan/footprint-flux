@@ -1,4 +1,6 @@
 from datetime import datetime, timezone
+from fastapi.testclient import TestClient
+from app.main import app
 
 from sqlalchemy.orm import Session
 
@@ -6,6 +8,32 @@ from app.api import timeline
 from app.database import engine
 from app.models import Person, Snapshot
 from app.api.timeline import timeline_for_person
+
+
+
+client = TestClient(app)
+
+def test_timeline_stats_endpoint_returns_success():
+    from uuid import uuid4
+
+    person_id = uuid4()
+    response = client.get(f"/timeline/{person_id}/stats")
+
+    assert response.status_code == 200
+
+    data = response.json()
+    assert data["total_snapshots"] == 0
+    assert data["total_changes"] == 0
+    assert "change_rate" in data
+    assert "activity_status" in data
+
+
+
+def test_timeline_stats_rejects_invalid_uuid():
+    response = client.get("/timeline/not-a-valid-uuid/stats")
+
+    assert response.status_code == 422
+
 
 
 def test_timeline_for_person():
@@ -41,3 +69,4 @@ def test_timeline_for_person():
         assert timeline[1]["type"] == "snapshot" 
         assert timeline[0]["snapshot_id"] == str(snapshot_1.id)
         assert timeline[1]["snapshot_id"] == str(snapshot_2.id)
+
