@@ -31,5 +31,8 @@ def test_timeline_stats_change_rate_with_multiple_snapshots(session):
     stats = get_timeline_stats(session, person.id)
 
     assert stats["total_snapshots"] == 3
+    assert stats["total_changes"] == 0
     assert stats["change_rate"] == 0
     assert stats["activity_status"] == "no_changes"
+    assert stats["first_snapshot"] == snapshots[0].captured_at
+    assert stats["latest_snapshot"] == snapshots[2].captured_at
