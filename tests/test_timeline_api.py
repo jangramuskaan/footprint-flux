@@ -8,6 +8,7 @@ from app.api import timeline
 from app.database import engine
 from app.models import Person, Snapshot
 from app.api.timeline import timeline_for_person
+from uuid import UUID, uuid4
 
 
 
@@ -70,3 +71,26 @@ def test_timeline_for_person():
         assert timeline[0]["snapshot_id"] == str(snapshot_1.id)
         assert timeline[1]["snapshot_id"] == str(snapshot_2.id)
 
+
+def test_timeline_rejects_zero_limit():
+    response = client.get(
+        f"/timeline/{uuid4()}",
+        params={"limit": 0},
+    )
+    assert response.status_code == 422
+
+
+def test_timeline_rejects_negative_offset():
+    response = client.get(
+        f"/timeline/{uuid4()}",
+        params={"offset": -1},
+    )
+    assert response.status_code == 422
+
+
+def test_timeline_rejects_excessive_limit():
+    response = client.get(
+        f"/timeline/{uuid4()}",
+        params={"limit": 501},
+    )
+    assert response.status_code == 422
