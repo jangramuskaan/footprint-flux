@@ -94,3 +94,37 @@ def test_timeline_rejects_excessive_limit():
         params={"limit": 501},
     )
     assert response.status_code == 422
+
+
+
+def test_timeline_pagination_returns_limited_events():
+    person = Person(
+        display_name="Pagination Test User",
+        created_at=datetime.now(timezone.utc),
+    )
+
+    with Session(engine) as session:
+        session.add(person)
+        session.flush()
+
+        snapshots = [
+            Snapshot(
+                person_id=person.id,
+                captured_at=datetime(2026, 9, day, tzinfo=timezone.utc),
+            )
+            for day in (20, 21, 22)
+        ]
+        session.add_all(snapshots)
+        session.commit()
+
+        person_id = person.id
+
+    response = client.get(
+        f"/timeline/{person_id}",
+        params={"limit": 2, "offset": 0},
+    )
+
+    assert response.status_code == 200
+    events = response.json()
+    assert len(events) == 2
+    assert all(event["type"] == "snapshot" for event in events)
