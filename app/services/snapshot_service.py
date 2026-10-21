@@ -1,8 +1,8 @@
 from uuid import UUID
-
 from sqlalchemy.orm import Session
+from sqlalchemy import select
 
-from app.models import Observation, Snapshot
+from app.models import Observation, Snapshot, Change
 from app.repositories.snapshot import create_snapshot as repository_create_snapshot
 from app.repositories.snapshot import get_snapshot as repository_get_snapshot
 

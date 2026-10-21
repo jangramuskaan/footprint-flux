@@ -14,6 +14,7 @@ from app.models import Person
 from app.api.privacy_report import privacy_report_for_person
 from app.api.recommendations import recommendations_for_person
 from app.api.snapshot_diff import compare_snapshots
+from app.api.timeline import router as timeline_router
 
 from app.services.timeline_stats import get_timeline_stats
 
@@ -23,6 +24,8 @@ app = FastAPI(
     title="Footprint Flux API",
     version="1.0.0",
 )
+
+app.include_router(timeline_router)
 
 
 # Frontend
