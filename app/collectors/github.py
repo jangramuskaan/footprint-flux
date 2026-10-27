@@ -1,9 +1,14 @@
 import json
 import os
+from dotenv import load_dotenv
+
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError, URLError
 from typing import Any
 
+load_dotenv()
+
+GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 
 GITHUB_API_URL = "https://api.github.com"
 
