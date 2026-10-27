@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.database import engine
 from app.services.timeline_service import get_timeline
+from app.services.timeline_activity import get_daily_activity
 
 router = APIRouter()
 
@@ -39,3 +40,19 @@ def timeline_for_person(
         session=session,
         person_id=person_id,
     )
+
+
+@router.get("/timeline/{person_id}/daily-activity")
+def daily_activity_endpoint(
+    person_id: UUID,
+):
+    with Session(engine) as session:
+        activity = get_daily_activity(
+            session=session,
+            person_id=person_id,
+        )
+
+    return {
+        "person_id": str(person_id),
+        "daily_activity": activity,
+    }
