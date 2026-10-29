@@ -15,7 +15,7 @@ from app.api.privacy_report import privacy_report_for_person
 from app.api.recommendations import recommendations_for_person
 from app.api.snapshot_diff import compare_snapshots
 from app.api.timeline import router as timeline_router
-
+from app.services.github_collection import collect_github_profile
 from app.services.timeline_stats import get_timeline_stats
 
 import networkx as nx
@@ -185,3 +185,25 @@ def get_snapshot_diff(
         )
 
     return result
+
+
+@app.post("/api/scan/github/{username}")
+def scan_github_profile(username: str):
+    try:
+        with Session(engine) as session:
+            observations = collect_github_profile(
+                session=session,
+                username=username,
+            )
+
+        return {
+            "message": "GitHub profile scan completed successfully.",
+            "username": username,
+            "observations_collected": len(observations),
+        }
+
+    except Exception as error:
+        raise HTTPException(
+            status_code=502,
+            detail=f"GitHub scan failed: {error}",
+        )

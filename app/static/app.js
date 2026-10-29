@@ -122,11 +122,16 @@ async function loadTimeline() {
 
     if (!activityContainer) return;
 
+    const personId = "4869e231-8d64-43d3-b1a5-c1bf9ef0bfb5";
+
     try {
-        const response = await fetch("/timeline/4869e231-8d64-43d3-b1a5-c1bf9ef0bfb5");
+        activityContainer.innerHTML =
+            '<p class="empty-state">Loading footprint activity...</p>';
+
+        const response = await fetch(`/timeline/${personId}?limit=50&offset=0`);
 
         if (!response.ok) {
-            throw new Error("Unable to load timeline");
+            throw new Error(`Timeline request failed: ${response.status}`);
         }
 
         const data = await response.json();
@@ -137,22 +142,28 @@ async function loadTimeline() {
             return;
         }
 
-        activityContainer.innerHTML = data.map(item => {
-            const date = new Date(item.timestamp).toLocaleString();
-            const label = item.type === "snapshot"
-                ? "Footprint snapshot created"
-                : `Footprint change: ${item.change_type}`;
+        activityContainer.innerHTML = data
+            .slice()
+            .reverse()
+            .map(item => {
+                const date = new Date(item.timestamp).toLocaleString();
 
-            return `
-                <div class="activity-item">
-                    <strong>${label}</strong>
-                    <small>${date}</small>
-                </div>
-            `;
-        }).join("");
+                const label = item.type === "snapshot"
+                    ? "Footprint snapshot created"
+                    : `Footprint ${item.change_type} — ${item.new_value ?? item.old_value ?? "Value updated"}`;
+
+                return `
+                    <div class="activity-item">
+                        <strong>${label}</strong>
+                        <small>${date}</small>
+                    </div>
+                `;
+            })
+            .join("");
     } catch (error) {
         console.error("Timeline loading error:", error);
+
         activityContainer.innerHTML =
-            '<p class="empty-state">Unable to load timeline.</p>';
+            '<p class="empty-state">Unable to load timeline data.</p>';
     }
 }
