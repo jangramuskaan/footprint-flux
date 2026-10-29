@@ -45,9 +45,11 @@
                     <h2>Dashboard</h2>
                 </div>
 
-                <button class="scan-button">
+                <button class="scan-button" id="runScanButton" type="button">
                     Run Scan
                 </button>
+
+                <span id="scanStatus" role="status" aria-live="polite"></span>
             </header>
 
 
@@ -171,7 +173,7 @@
 
     </div>
 
-    <script src="/static/app.js?v=2"></script>
+    <script src="/static/app.js?v=3"></script>
 
 </body>
 </html>
