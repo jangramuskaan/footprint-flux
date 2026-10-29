@@ -8,50 +8,61 @@ async function loadDashboardStats() {
 
         const data = await response.json();
 
-        console.log("Footprint Flux stats loaded:", data);
+        document.getElementById("observationCount").textContent =
+            data.observations ?? 0;
 
-        const observationCount =
-            document.getElementById("observationCount");
+        document.getElementById("sourceCount").textContent =
+            data.sources ?? 0;
 
-        const sourceCount =
-            document.getElementById("sourceCount");
-
-        const changeCount =
-            document.getElementById("changeCount");
-
-        const exposureScore =
-            document.getElementById("exposureScore");
-
-        if (observationCount) {
-            observationCount.textContent = data.observations;
-        }
-
-        if (sourceCount) {
-            sourceCount.textContent = data.sources;
-        }
-
-        if (changeCount) {
-            changeCount.textContent = data.changes;
-        }
-
-        if (exposureScore) {
-            exposureScore.textContent = "—";
-        }
+        document.getElementById("changeCount").textContent =
+            data.changes ?? 0;
 
     } catch (error) {
-        console.error(
-            "Dashboard statistics error:",
-            error
-        );
+        console.error("Dashboard statistics error:", error);
     }
 }
 
+async function loadExposureScore() {
+    try {
+        const personId = "4869e231-8d64-43d3-b1a5-c1bf9ef0bfb5";
+
+        const response = await fetch(`/exposure/${personId}`);
+
+        if (!response.ok) {
+            throw new Error("Unable to load exposure score");
+        }
+
+        const data = await response.json();
+
+        const scoreElement = document.getElementById("exposureScore");
+
+        if (scoreElement) {
+            scoreElement.textContent = `${data.score}/100`;
+            scoreElement.title = `Risk level: ${data.risk_level}`;
+        }
+
+        console.log("Exposure score loaded:", data);
+
+    } catch (error) {
+        console.error("Exposure score error:", error);
+
+        const scoreElement = document.getElementById("exposureScore");
+
+        if (scoreElement) {
+            scoreElement.textContent = "Unavailable";
+        }
+    }
+}
+
+async function loadDashboard() {
+    await Promise.all([
+        loadDashboardStats(),
+        loadExposureScore()
+    ]);
+}
 
 if (document.readyState === "loading") {
-    document.addEventListener(
-        "DOMContentLoaded",
-        loadDashboardStats
-    );
+    document.addEventListener("DOMContentLoaded", loadDashboard);
 } else {
-    loadDashboardStats();
+    loadDashboard();
 }
