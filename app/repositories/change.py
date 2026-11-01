@@ -10,6 +10,19 @@ def save_change(
     session: Session,
     change: Change,
 ) -> Change:
+
+    statement = select(Change).where(
+        Change.snapshot_before_id == change.snapshot_before_id,
+        Change.snapshot_after_id == change.snapshot_after_id,
+        Change.observation_id == change.observation_id,
+        Change.change_type == change.change_type,
+    )
+
+    existing_change = session.execute(statement).scalar_one_or_none()
+
+    if existing_change is not None:
+        return existing_change
+
     session.add(change)
     session.commit()
     session.refresh(change)
