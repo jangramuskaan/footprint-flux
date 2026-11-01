@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from app.collectors.github import GitHubCollector
 from app.models import Observation, Source
 from app.repositories.observation import save_observation
-
+from app.services.graph_builder import save_relationship
 
 def collect_github_profile(
     session: Session,
@@ -41,5 +41,20 @@ def collect_github_profile(
         )
 
         saved_observations.append(saved)
+        if item["key"] == "username":
+             save_relationship(
+                session=session,
+                observation_type="username",
+                source_value=source.url,
+                target_value=item["value"],
+            )
+
+        elif item["key"] == "profile_url":
+            save_relationship(
+                session=session,
+                observation_type="url",
+                source_value=source.url,
+                target_value=item["value"],
+            )
 
     return saved_observations
