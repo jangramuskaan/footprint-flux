@@ -419,3 +419,114 @@ nav {
 .activity-item.snapshot {
     border-left-color: #38bdf8;
 }
+
+
+
+
+/* Exposure Analysis */
+
+.exposure-overview {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 20px;
+    margin-top: 24px;
+}
+
+.exposure-score-card,
+.exposure-description,
+.analysis-card {
+    padding: 22px;
+    background: #111820;
+    border: 1px solid #263442;
+    border-radius: 12px;
+}
+
+.exposure-score-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.exposure-score-card strong {
+    font-size: 38px;
+}
+
+.exposure-score-card span,
+.exposure-score-card small {
+    color: #94a3b8;
+}
+
+.exposure-description h4,
+.analysis-card h4 {
+    margin-bottom: 12px;
+}
+
+.exposure-description p {
+    color: #94a3b8;
+    line-height: 1.7;
+}
+
+.analysis-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.risk-badge {
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.risk-badge.low {
+    background: #14532d;
+    color: #86efac;
+}
+
+.risk-badge.medium {
+    background: #78350f;
+    color: #fcd34d;
+}
+
+.risk-badge.high {
+    background: #7f1d1d;
+    color: #fca5a5;
+}
+
+.factor-item,
+.recommendation-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 0;
+    border-bottom: 1px solid #263442;
+}
+
+.factor-item span,
+.recommendation-item p {
+    color: #cbd5e1;
+}
+
+.recommendation-item {
+    justify-content: flex-start;
+}
+
+.recommendation-item p {
+    margin: 0;
+    line-height: 1.5;
+}
+
+.recommendation-item span {
+    color: #22c55e;
+    font-weight: bold;
+}
+
+@media (max-width: 768px) {
+    .exposure-overview,
+    .analysis-grid {
+        grid-template-columns: 1fr;
+    }
+}

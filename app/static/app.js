@@ -104,6 +104,7 @@ async function runGitHubScan() {
 document.addEventListener("DOMContentLoaded", () => {
     loadTimeline();
     loadDashboardStats();
+    loadExposureAnalysis();
 
     const scanButton = document.getElementById("runScanButton");
 
@@ -169,5 +170,68 @@ async function loadTimeline() {
 
         activityContainer.innerHTML =
             '<p class="empty-state">Unable to load timeline data.</p>';
+    }
+}
+
+
+
+async function loadExposureAnalysis() {
+    const personId = "4869e231-8d64-43d3-b1a5-c1bf9ef0bfb5";
+
+    const scoreElement = document.getElementById("analysisScore");
+    const badgeElement = document.getElementById("riskBadge");
+    const descriptionElement = document.getElementById("riskDescription");
+    const factorsElement = document.getElementById("exposureFactors");
+    const recommendationsElement = document.getElementById("privacyRecommendations");
+
+    try {
+        const [exposureResponse, recommendationsResponse] =
+            await Promise.all([
+                fetch(`/exposure/${personId}`),
+                fetch(`/recommendations/${personId}`)
+            ]);
+
+        if (!exposureResponse.ok || !recommendationsResponse.ok) {
+            throw new Error("Unable to load exposure analysis.");
+        }
+
+        const exposure = await exposureResponse.json();
+        const recommendationData = await recommendationsResponse.json();
+
+        scoreElement.textContent = `${exposure.score}/100`;
+
+        const risk = exposure.risk_level.toLowerCase();
+
+        badgeElement.textContent = risk.toUpperCase();
+        badgeElement.className = `risk-badge ${risk}`;
+
+        descriptionElement.textContent =
+            risk === "high"
+                ? "Your public digital footprint has significant exposure. Review the factors below."
+                : risk === "medium"
+                    ? "Your digital footprint has moderate exposure. Some privacy improvements are recommended."
+                    : "Your digital footprint currently has relatively low exposure.";
+
+        factorsElement.innerHTML = exposure.factors.map(item => `
+            <div class="factor-item">
+                <span>${item.factor}</span>
+                <strong>${item.points} pts</strong>
+            </div>
+        `).join("");
+
+        recommendationsElement.innerHTML =
+            recommendationData.recommendations.map(item => `
+                <div class="recommendation-item">
+                    <span>✓</span>
+                    <p>${item}</p>
+                </div>
+            `).join("");
+
+    } catch (error) {
+        console.error("Exposure analysis error:", error);
+
+        badgeElement.textContent = "Unavailable";
+        descriptionElement.textContent =
+            "Unable to load exposure analysis. Check the API response.";
     }
 }
