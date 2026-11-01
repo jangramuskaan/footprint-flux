@@ -148,16 +148,20 @@ async function loadTimeline() {
             .map(item => {
                 const date = new Date(item.timestamp).toLocaleString();
 
-                const label = item.type === "snapshot"
+                const type = item.type === "snapshot"
+                    ? "snapshot"
+                    : (item.change_type || "modified").toLowerCase();
+
+                const label = type === "snapshot"
                     ? "Footprint snapshot created"
-                    : `Footprint ${item.change_type} — ${item.new_value ?? item.old_value ?? "Value updated"}`;
+                    : `Footprint ${type} — ${item.new_value ?? "Unknown"} → ${item.old_value ?? "Unknown"}`;
 
                 return `
-                    <div class="activity-item">
+                    <div class="activity-item ${type}">
                         <strong>${label}</strong>
                         <small>${date}</small>
                     </div>
-                `;
+               `;
             })
             .join("");
     } catch (error) {

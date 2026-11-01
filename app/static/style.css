@@ -335,3 +335,87 @@ nav {
     color: #94a3b8;
     line-height: 1.6;
 }
+
+
+
+/* Timeline activity items */
+.activity-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    background: #111820;
+    border: 1px solid #263442;
+    border-left: 4px solid #64748b;
+    border-radius: 10px;
+}
+
+.activity-item strong {
+    color: #e2e8f0;
+    font-size: 14px;
+}
+
+.activity-item small {
+    color: #94a3b8;
+    font-size: 12px;
+}
+
+/* Added information */
+.activity-item.added {
+    border-left-color: #22c55e;
+}
+
+/* Removed information */
+.activity-item.removed {
+    border-left-color: #ef4444;
+}
+
+/* Modified information */
+.activity-item.modified {
+    border-left-color: #f59e0b;
+}
+
+/* Snapshot created */
+.activity-item.snapshot {
+    border-left-color: #38bdf8;
+}
+
+
+
+.activity-item {
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    background: #111820;
+    border: 1px solid #263442;
+    border-left: 4px solid #64748b;
+    border-radius: 10px;
+}
+
+.activity-item strong {
+    color: #e2e8f0;
+    font-size: 14px;
+}
+
+.activity-item small {
+    display: block;
+    margin-top: 6px;
+    color: #94a3b8;
+    font-size: 12px;
+}
+
+.activity-item.added {
+    border-left-color: #22c55e;
+}
+
+.activity-item.removed {
+    border-left-color: #ef4444;
+}
+
+.activity-item.modified {
+    border-left-color: #f59e0b;
+}
+
+.activity-item.snapshot {
+    border-left-color: #38bdf8;
+}
